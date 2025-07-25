@@ -637,7 +637,7 @@
 
     <script>
         // Initialize Stripe (replace with your publishable key)
-        const stripe = Stripe('pk_test_51234567890abcdefghijklmnopqrstuvwxyz');
+        const stripe = Stripe('pk_test_51Rodag2LGs1CAoQqR8mzHbrGTbLpC0NQMRe6I1NlfnuxOHEuBAFgiWA0mB7A3MZ1Scj30N6u2znLqkeu14XVCytJ00nrbJRgME');
         
         // Shopping Cart Functionality
         let cart = [];
@@ -704,9 +704,6 @@
             messageDiv.textContent = 'Redirecting to secure checkout...';
             
             try {
-                // For live testing with backend:
-                // Uncomment these lines when your backend is running
-                /*
                 const response = await fetch('/create-checkout-session', {
                     method: 'POST',
                     headers: {
@@ -723,19 +720,19 @@
                 
                 const { url } = await response.json();
                 window.location.href = url;
-                */
+                
                 
                 // For demo without backend:
-                setTimeout(() => {
+                //setTimeout(() => {
                     // Store cart in localStorage for success page
-                    localStorage.setItem('pendingOrder', JSON.stringify({
-                        items: cart,
-                        total: cart.reduce((sum, item) => sum + item.price, 0)
-                    }));
+                    //localStorage.setItem('pendingOrder', JSON.stringify({
+                        //items: cart,
+                        //total: cart.reduce((sum, item) => sum + item.price, 0)
+                   // }));
                     
                     // Simulate redirect to success page
-                    window.location.href = 'success.html?session_id=demo_' + Date.now();
-                }, 1500);
+                   // window.location.href = 'success.html?session_id=demo_' + Date.now();
+               // }, 1500);
                 
             } catch (error) {
                 messageDiv.className = 'error';
