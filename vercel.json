@@ -1,21 +1,6 @@
 {
-  "functions": {
-    "server.js": {
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/server.js"
-    },
-    {
-      "source": "/create-checkout-session",
-      "destination": "/server.js"
-    },
-    {
-      "source": "/webhook",
-      "destination": "/server.js"
-    }
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/$1" }
   ]
 }
