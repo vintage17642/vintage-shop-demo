@@ -1,7 +1,7 @@
 // stripe-backend.js - Node.js/Express backend for Stripe integration
 // This file shows how to set up the backend for your live Stripe test
 
-crequire('dotenv').config(); // Add this line
+require('dotenv').config(); // Add this line
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Use env variable
 const app = express();
@@ -32,8 +32,8 @@ app.post('/create-checkout-session', async (req, res) => {
       payment_method_types: ['card'],
       line_items,
       mode: 'payment',
-      success_url: `${YOUR_DOMAIN}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${YOUR_DOMAIN}/index.html`,
+      success_url: `${process.env.DOMAIN}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.DOMAIN}/index.html`,
       
       // Collect customer information
       billing_address_collection: 'required',
