@@ -1,26 +1,21 @@
 {
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
+  "functions": {
+    "server.js": {
+      "maxDuration": 30
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/create-checkout-session",
-      "dest": "/server.js"
+      "source": "/api/(.*)",
+      "destination": "/server.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
+      "source": "/create-checkout-session",
+      "destination": "/server.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/webhook",
+      "destination": "/server.js"
     }
   ]
 }

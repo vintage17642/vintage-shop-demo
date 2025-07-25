@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.static('.')); // Serve your HTML files
 
 // Create Checkout Session endpoint
-app.post('/create-checkout-session', async (req, res) => {
+app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { items } = req.body;
 
