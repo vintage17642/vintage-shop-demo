@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Successful - Vintage Treasures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8B4513;
+            --secondary: #D2691E;
+            --accent: #DAA520;
+            --text: #333;
+            --bg: #FFF8F0;
+            --success: #28a745;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .success-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .order-number {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .invoice {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .company-info h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .invoice-details {
+            text-align: right;
+        }
+
+        .invoice-details p {
+            margin: 5px 0;
+        }
+
+        .customer-info {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .customer-info h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total-row {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+            .actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContent">
+        <div class="loading" id="loadingState">
+            <div class="spinner"></div>
+            <p>Processing your order...</p>
+        </div>
+        
+        <div id="successContent" style="display: none;">
+            <div class="success-header">
+                <div class="success-icon">✅</div>
+                <h1>Order Successful!</h1>
+                <p class="order-number" id="orderNumber">Order #</p>
+                <p>Thank you for your purchase. Your invoice has been generated below.</p>
+            </div>
+
+            <div class="invoice" id="invoiceContent">
+                <div class="invoice-header">
+                    <div class="company-info">
+                        <h2>🏺 Vintage Treasures</h2>
+                        <p>123 Antique Lane</p>
+                        <p>Historic District, HD 12345</p>
+                        <p>Phone: 1-800-VINTAGE</p>
+                        <p>Email: orders@vintagetreasures.com</p>
+                    </div>
+                    <div class="invoice-details">
+                        <h3>INVOICE</h3>
+                        <p><strong>Invoice #:</strong> <span id="invoiceNumber"></span></p>
+                        <p><strong>Date:</strong> <span id="invoiceDate"></span></p>
+                        <p><strong>Payment Status:</strong> <span style="color: var(--success);">PAID</span></p>
+                    </div>
+                </div>
+
+                <div class="customer-info">
+                    <h3>Bill To:</h3>
+                    <p id="customerName">Loading...</p>
+                    <p id="customerEmail"></p>
+                    <p id="customerAddress"></p>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTable">
+                        <!-- Items will be inserted here -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" style="text-align: right;"><strong>Subtotal:</strong></td>
+                            <td id="subtotal">$0.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="text-align: right;"><strong>Tax:</strong></td>
+                            <td id="tax">$0.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="text-align: right;"><strong>Shipping:</strong></td>
+                            <td id="shipping">$0.00</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td colspan="4" style="text-align: right;">Total:</td>
+                            <td id="total">$0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="margin-top: 30px; text-align: center; color: #666;">
+                    <p>Thank you for your business!</p>
+                    <p>This invoice has been automatically saved to our records.</p>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" onclick="downloadInvoice()">Download Invoice</button>
+                <button class="btn btn-secondary" onclick="window.print()">Print Invoice</button>
+                <a href="index.html" class="btn btn-primary">Continue Shopping</a>
+            </div>
+        </div>
+
+        <div id="errorContent" style="display: none;">
+            <div class="error">
+                <h2>Something went wrong</h2>
+                <p id="errorMessage">Unable to process your order. Please contact support.</p>
+            </div>
+            <div class="actions">
+                <a href="index.html" class="btn btn-primary">Return to Shop</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+
+        // Mock data for demonstration (replace with actual Stripe session data)
+        const mockOrderData = {
+            orderNumber: 'VT-' + Date.now().toString().slice(-8),
+            invoiceNumber: 'INV-' + Date.now().toString().slice(-8),
+            customerName: 'John Doe',
+            customerEmail: 'john.doe@example.com',
+            customerAddress: '123 Main St, Anytown, AT 12345',
+            items: [
+                { name: 'Victorian Pocket Watch', description: '1890s gold-plated', quantity: 1, price: 450 },
+                { name: 'First Edition Books Set', description: 'Classic collection', quantity: 1, price: 850 }
+            ],
+            subtotal: 1300,
+            tax: 104,
+            shipping: 25,
+            total: 1429
+        };
+
+        // Function to generate and display invoice
+        async function generateInvoice() {
+            try {
+                // In production, you would fetch this data from your backend
+                // const response = await fetch(`/api/order/${sessionId}`);
+                // const orderData = await response.json();
+                
+                // For demo, using mock data
+                const orderData = mockOrderData;
+                
+                // Store invoice data
+                storeInvoice(orderData);
+                
+                // Display invoice
+                displayInvoice(orderData);
+                
+                // Show success content
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('successContent').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('errorContent').style.display = 'block';
+            }
+        }
+
+        function displayInvoice(data) {
+            // Set order details
+            document.getElementById('orderNumber').textContent = `Order #${data.orderNumber}`;
+            document.getElementById('invoiceNumber').textContent = data.invoiceNumber;
+            document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString();
+            
+            // Set customer info
+            document.getElementById('customerName').textContent = data.customerName;
+            document.getElementById('customerEmail').textContent = data.customerEmail;
+            document.getElementById('customerAddress').textContent = data.customerAddress;
+            
+            // Populate items table
+            const itemsTable = document.getElementById('itemsTable');
+            data.items.forEach(item => {
+                const row = itemsTable.insertRow();
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.description}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${item.price.toFixed(2)}</td>
+                    <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                `;
+            });
+            
+            // Set totals
+            document.getElementById('subtotal').textContent = `$${data.subtotal.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${data.tax.toFixed(2)}`;
+            document.getElementById('shipping').textContent = `$${data.shipping.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${data.total.toFixed(2)}`;
+        }
+
+        function storeInvoice(data) {
+            // Store in localStorage for demo
+            const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+            invoices.push({
+                ...data,
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            
+            // In production, you would send this to your backend
+            // fetch('/api/invoices', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(data)
+            // });
+            
+            console.log('Invoice stored:', data);
+        }
+
+        function downloadInvoice() {
+            // Create a blob from the invoice HTML
+            const invoiceHtml = document.getElementById('invoiceContent').outerHTML;
+            const fullHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Invoice ${mockOrderData.invoiceNumber}</title>
+                    <style>
+                        body { font-family: Georgia, serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                        .invoice { background: #f9f9f9; padding: 30px; }
+                        .invoice-header { display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #8B4513; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th { background: #8B4513; color: white; padding: 12px; text-align: left; }
+                        td { padding: 12px; border-bottom: 1px solid #eee; }
+                        .total-row { font-weight: bold; font-size: 1.2rem; }
+                    </style>
+                </head>
+                <body>${invoiceHtml}</body>
+                </html>
+            `;
+            
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `invoice-${mockOrderData.invoiceNumber}.html`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            generateInvoice();
+        };
+    </script>
+</body>
+</html>

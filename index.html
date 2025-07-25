@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vintage Treasures - Curated Antiques & Collectibles</title>
+    <!-- Stripe JS -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8B4513;
+            --secondary: #D2691E;
+            --accent: #DAA520;
+            --text: #333;
+            --bg: #FFF8F0;
+            --card-bg: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Demo Banner */
+        .demo-banner {
+            background: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .demo-banner code {
+            background: rgba(0,0,0,0.2);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: "🏺";
+            font-size: 2.5rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+            font-size: 1.1rem;
+        }
+
+        nav a:hover {
+            opacity: 0.8;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent);
+            color: var(--primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(139, 69, 19, 0.7), rgba(139, 69, 19, 0.7)),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23FFF8F0" width="1200" height="600"/><path fill="%238B4513" opacity="0.1" d="M0 300L50 325L100 350L150 325L200 300L250 275L300 250L350 275L400 300L450 325L500 350L550 325L600 300L650 275L700 250L750 275L800 300L850 325L900 350L950 325L1000 300L1050 275L1100 250L1150 275L1200 300V600H0V300Z"/></svg>');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 4rem 20px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .cta-button {
+            background: var(--accent);
+            color: var(--primary);
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Product Grid */
+        .products-section {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: "";
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: var(--accent);
+            margin: 1rem auto;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background: linear-gradient(45deg, #f0e6d6 25%, #e6dcc6 25%, #e6dcc6 50%, #f0e6d6 50%, #f0e6d6 75%, #e6dcc6 75%, #e6dcc6);
+            background-size: 20px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--primary);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .product-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .add-to-cart {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .add-to-cart:hover {
+            background: var(--secondary);
+        }
+
+        /* Features Section */
+        .features {
+            background: white;
+            padding: 4rem 20px;
+            margin-top: 4rem;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            text-align: center;
+        }
+
+        .feature {
+            padding: 2rem;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 3rem 20px 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .footer-section a:hover {
+            opacity: 1;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            opacity: 0.8;
+        }
+
+        /* Cart Modal */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cart-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .close-cart {
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--primary);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .remove-item {
+            color: #e74c3c;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+
+        .cart-total {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-align: right;
+            margin-top: 1rem;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        #payment-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .processing {
+            background: #cce5ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+            }
+            
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Banner -->
+    <div class="demo-banner">
+        🎉 DEMO MODE - Use card <code>4242 4242 4242 4242</code> with any future date and CVC to test payments
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">Vintage Treasures</a>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#shop">Shop</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li class="cart-icon" onclick="toggleCart()">
+                        🛒 <span class="cart-count" id="cartCount">0</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <h1>Discover Timeless Treasures</h1>
+        <p>Hand-picked antiques and vintage collectibles from around the world</p>
+        <a href="#shop" class="cta-button">Browse Collection</a>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section" id="shop">
+        <h2 class="section-title">Featured Items</h2>
+        <div class="product-grid">
+            <!-- Product 1 -->
+            <div class="product-card">
+                <div class="product-image">🕰️</div>
+                <div class="product-info">
+                    <h3 class="product-title">Victorian Pocket Watch</h3>
+                    <p class="product-description">Exquisite 1890s gold-plated pocket watch in working condition</p>
+                    <div class="product-footer">
+                        <span class="price">$450</span>
+                        <button class="add-to-cart" onclick="addToCart('Victorian Pocket Watch', 450, 'price_1234')">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card">
+                <div class="product-image">🪑</div>
+                <div class="product-info">
+                    <h3 class="product-title">French Louis XVI Chair</h3>
+                    <p class="product-description">Authentic 18th century upholstered armchair with carved details</p>
+                    <div class="product-footer">
+                        <span class="price">$1,200</span>
+                        <button class="add-to-cart" onclick="addToCart('French Louis XVI Chair', 1200, 'price_5678')">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card">
+                <div class="product-image">🏺</div>
+                <div class="product-info">
+                    <h3 class="product-title">Ming Dynasty Vase</h3>
+                    <p class="product-description">Rare blue and white porcelain vase from the Ming period</p>
+                    <div class="product-footer">
+                        <span class="price">$3,500</span>
+                        <button class="add-to-cart" onclick="addToCart('Ming Dynasty Vase', 3500, 'price_9012')">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card">
+                <div class="product-image">📚</div>
+                <div class="product-info">
+                    <h3 class="product-title">First Edition Books Set</h3>
+                    <p class="product-description">Collection of five first edition classics from the 1920s</p>
+                    <div class="product-footer">
+                        <span class="price">$850</span>
+                        <button class="add-to-cart" onclick="addToCart('First Edition Books Set', 850, 'price_3456')">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 5 -->
+            <div class="product-card">
+                <div class="product-image">💍</div>
+                <div class="product-info">
+                    <h3 class="product-title">Art Deco Diamond Ring</h3>
+                    <p class="product-description">Stunning 1925 platinum ring with geometric design</p>
+                    <div class="product-footer">
+                        <span class="price">$2,800</span>
+                        <button class="add-to-cart" onclick="addToCart('Art Deco Diamond Ring', 2800, 'price_7890')">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 6 -->
+            <div class="product-card">
+                <div class="product-image">🖼️</div>
+                <div class="product-info">
+                    <h3 class="product-title">Oil Painting - Landscape</h3>
+                    <p class="product-description">19th century European landscape in original gilt frame</p>
+                    <div class="product-footer">
+                        <span class="price">$1,500</span>
+                        <button class="add-to-cart" onclick="addToCart('Oil Painting - Landscape', 1500, 'price_2345')">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="about">
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">✨</div>
+                <h3>Authenticated Items</h3>
+                <p>Every piece is carefully verified by our expert appraisers</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📦</div>
+                <h3>Secure Shipping</h3>
+                <p>Professional packaging and insured delivery worldwide</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💰</div>
+                <h3>Fair Pricing</h3>
+                <p>Competitive prices based on current market valuations</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🤝</div>
+                <h3>Expert Support</h3>
+                <p>Our team is here to answer all your questions</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About Us</h4>
+                <p>Curating exceptional antiques and vintage items since 1985. Your trusted source for authentic historical pieces.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#shop">Shop All Items</a></li>
+                    <li><a href="#new">New Arrivals</a></li>
+                    <li><a href="#sale">Sale Items</a></li>
+                    <li><a href="#appraisal">Appraisal Services</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Customer Service</h4>
+                <ul>
+                    <li><a href="#shipping">Shipping Info</a></li>
+                    <li><a href="#returns">Return Policy</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <p>📧 info@vintagetreasures.com</p>
+                <p>📞 1-800-VINTAGE</p>
+                <p>Follow us on social media for daily finds!</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Vintage Treasures. All rights reserved. | Privacy Policy | Terms of Service</p>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Shopping Cart</h2>
+                <span class="close-cart" onclick="toggleCart()">&times;</span>
+            </div>
+            <div id="cartItems"></div>
+            <div class="cart-total" id="cartTotal">Total: $0</div>
+            <button class="cta-button checkout-btn" onclick="checkout()">Proceed to Checkout</button>
+            <div id="payment-message"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Stripe (replace with your publishable key)
+        const stripe = Stripe('pk_test_51234567890abcdefghijklmnopqrstuvwxyz');
+        
+        // Shopping Cart Functionality
+        let cart = [];
+        
+        function addToCart(name, price, priceId) {
+            cart.push({ name, price, priceId });
+            updateCartCount();
+            showNotification('Item added to cart!');
+        }
+        
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        function updateCartCount() {
+            document.getElementById('cartCount').textContent = cart.length;
+        }
+        
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            if (modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            } else {
+                modal.style.display = 'flex';
+                updateCartDisplay();
+            }
+        }
+        
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p>Your cart is empty</p>';
+                cartTotal.textContent = 'Total: $0';
+                return;
+            }
+            
+            let html = '';
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                html += `
+                    <div class="cart-item">
+                        <div class="cart-item-details">
+                            <strong>${item.name}</strong>
+                            <span style="margin-left: 10px;">$${item.price}</span>
+                        </div>
+                        <span class="remove-item" onclick="removeFromCart(${index})">Remove</span>
+                    </div>
+                `;
+                total += item.price;
+            });
+            
+            cartItems.innerHTML = html;
+            cartTotal.textContent = `Total: $${total.toLocaleString()}`;
+        }
+        
+        async function checkout() {
+            const messageDiv = document.getElementById('payment-message');
+            messageDiv.className = 'processing';
+            messageDiv.textContent = 'Redirecting to secure checkout...';
+            
+            try {
+                // For live testing with backend:
+                // Uncomment these lines when your backend is running
+                /*
+                const response = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        items: cart.map(item => ({
+                            name: item.name,
+                            price: item.price,
+                            quantity: 1
+                        }))
+                    })
+                });
+                
+                const { url } = await response.json();
+                window.location.href = url;
+                */
+                
+                // For demo without backend:
+                setTimeout(() => {
+                    // Store cart in localStorage for success page
+                    localStorage.setItem('pendingOrder', JSON.stringify({
+                        items: cart,
+                        total: cart.reduce((sum, item) => sum + item.price, 0)
+                    }));
+                    
+                    // Simulate redirect to success page
+                    window.location.href = 'success.html?session_id=demo_' + Date.now();
+                }, 1500);
+                
+            } catch (error) {
+                messageDiv.className = 'error';
+                messageDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: var(--primary);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 5px;
+                z-index: 3000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+        
+        // Add slide-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Demo instructions
+        console.log(`
+=== STRIPE INTEGRATION GUIDE ===
+
+1. Get your Stripe test keys from: https://dashboard.stripe.com/test/apikeys
+2. Replace 'pk_test_...' in the code with your publishable key
+3. Create a backend endpoint to handle checkout (Node.js example):
+
+app.post('/create-checkout-session', async (req, res) => {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: req.body.items,
+    mode: 'payment',
+    success_url: 'https://yoursite.com/success',
+    cancel_url: 'https://yoursite.com/cancel',
+  });
+  res.json({ id: session.id });
+});
+
+4. Update the checkout() function to call your backend
+        `);
+    </script>
+</body>
+</html>
