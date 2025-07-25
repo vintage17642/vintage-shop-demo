@@ -13,6 +13,10 @@ app.use(express.static('.')); // Serve your HTML files
 app.post('/create-checkout-session', async (req, res) => {
   try {
     const { items } = req.body;
+
+
+    console.log('Received items:', items); // Add logging
+    console.log('Stripe key exists:', !!process.env.STRIPE_SECRET_KEY); // Check if key exists
     
     // Convert your cart items to Stripe line items
     const line_items = items.map(item => ({
@@ -147,6 +151,10 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) =
 function formatAddress(address) {
   return `${address.line1}${address.line2 ? ', ' + address.line2 : ''}, ${address.city}, ${address.state} ${address.postal_code}, ${address.country}`;
 }
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
