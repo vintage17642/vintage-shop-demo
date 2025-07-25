@@ -11,17 +11,25 @@ module.exports = async (req, res) => {
     console.log('Received items:', items);
     console.log('Stripe key exists:', !!process.env.STRIPE_SECRET_KEY);
     
-    const line_items = items.map(item => ({
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: item.name,
-          description: item.description || '',
+    const line_items = items.map(item => {
+      const lineItem = {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.name,
+          },
+          unit_amount: item.price * 100,
         },
-        unit_amount: item.price * 100,
-      },
-      quantity: item.quantity || 1,
-    }));
+        quantity: item.quantity || 1,
+      };
+      
+      // Only add description if it exists and is not empty
+      if (item.description && item.description.trim() !== '') {
+        lineItem.price_data.product_data.description = item.description;
+      }
+      
+      return lineItem;
+    });
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
