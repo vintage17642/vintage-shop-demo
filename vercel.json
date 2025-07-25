@@ -3,15 +3,19 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/create-checkout-session",
       "dest": "/server.js"
     },
     {
-      "src": "/create-checkout-session",
+      "src": "/api/(.*)",
       "dest": "/server.js"
     },
     {
