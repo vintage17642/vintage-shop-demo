@@ -7,13 +7,11 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Use env vari
 const app = express();
 
 app.use(express.json());
-app.use(express.static('.')); // Serve your HTML files
-
+app.use(express.static('../')); // point to parent directory
 // Create Checkout Session endpoint
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { items } = req.body;
-
 
     console.log('Received items:', items); // Add logging
     console.log('Stripe key exists:', !!process.env.STRIPE_SECRET_KEY); // Check if key exists
