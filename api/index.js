@@ -162,11 +162,15 @@ app.get('/api/test', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Visit http://localhost:${PORT} to test`);
-});
+// Remove or comment out these lines:
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+//   console.log(`Visit http://localhost:${PORT} to test`);
+// });
+
+// Added this instead:
+module.exports = app;
 
 // ===== SETUP INSTRUCTIONS =====
 /*
